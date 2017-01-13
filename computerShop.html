@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mr. Robot</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.1.0/octicons.min.css">
+
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <form>
+      <fieldset>
+        <legend>Select a CPU</legend>
+        <p><label for="i3"><input type="radio" name="CPU" id="i3">Intel i3</label></p>
+        <p><label for="i4"><input type="radio" name="CPU" id="i4"></label>Intel i4</p>
+        <p><label for="i7"><input type="radio" name="CPU" id="i7"></label>Intel i7</p>
+      </fieldset>
+  <fieldset>
+    <legend>Select Ram</legend>
+    <p><label for="8"><input type="radio" name="ram" id="8">8gig</label></p>
+    <p><label for="16"><input type="radio" name="ram" id="16">16gig</label></p>
+  </fieldset>
+    <fieldset>
+      <legend></legend>
+
+      <p><label for="vrh"><input type="checkbox" name="" id="vrh">Virtual Reality Helmet</label></p>
+      <p><label for="3ds"><input type="checkbox" name="" id="3ds">3D Screen</label></p>
+      <p><label for="ss"><input type="checkbox" name="" id="ss">Stereo Speakers</label></p>
+    </fieldset>
+  <p>
+    <button>Submit</button>
+  </p>
+</form>
+
+    <script src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script>
+      /*********************************************************
+       *
+       *   Test Checkboxes/Radio Buttons Script
+       *
+       *********************************************************/
+       // loop through each form and handle submit event
+       for (var i=0;i<document.forms.length;i++) {
+         var form = document.forms[i];
+         form.addEventListener('submit', function(e){
+           e.preventDefault();
+           var results = '';
+          // loop through all checkboxes to see if checked
+          var checkboxes = form.querySelectorAll("input[type='checkbox']");
+          for(var k = 0; k < checkboxes.length; k++) {
+            results += checkboxes[k].id + '=' + checkboxes[k].checked + '\n';
+          }
+          // loop through all radio butotns to display value
+          var radiobuttons = form.querySelectorAll("input[type='radio']:checked");
+          for(var m = 0; m < radiobuttons.length; m++) {
+            results += radiobuttons[m].name + '=' + radiobuttons[m].value + '\n';
+          }
+          // alert results
+          alert(results);
+        });
+      }
+    </script>
+  </body>
+</html>

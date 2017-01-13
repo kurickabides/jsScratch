@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Home</title>
+  </head>
+  <body>
+    <form>
+        <p>
+            <label for="firstName">First Name:</label>
+            <input id="firstNameField" />
+        </p>
+
+        <p>
+            <label for="lastName">Last Name:</label>
+            <input id="lastNameField" />
+        </p>
+        <p>
+            <button>Create User</button>
+        </p>
+    </form>
+<form ><input
+  type="color"
+   name="" id=""></form>
+
+    <script type="text/javascript">
+    var forms = document.getElementsByTagName('form');
+
+  for (var i=0; i<forms.length;i++) {
+
+   forms[i].addEventListener('submit', function(e){
+   e.preventDefault();
+   // display each form field id and value
+   var results = '';
+   var fields = forms[0].elements;
+   for (var k=0;k<fields.length;k++) {
+     if (fields[k].id) {
+       results += fields[k].id + '=' + fields[k].value + '\n';
+     }
+   }
+   // display results
+   alert(results);
+ });
+}
+    </script>
+  </body>
+</html>
