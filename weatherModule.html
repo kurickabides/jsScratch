@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles\scratch.css">
+    <link href="styles\jquery.lighter.css" rel="stylesheet" />
+    <title>Weather Forcast</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.1.0/octicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
+
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+    <em>Get Weather by entering a city name:</em>
+    <input type="search" name="cityWeatherSearch" id="searchCity"/>
+    <button type="button" class="btn btnSearch" id='search'>
+      Search
+    </button>
+    <button type="button" class="btn btn-primary" id='refresh'>
+      Refresh
+    </button>
+<form id='weatherForm'>
+
+  <table class="table-bordered">
+    <thead>
+    <h1 class="panel-primary">Weather for </h1>
+    <th><h2>
+        <b id='cityName'></b>
+      </h2>
+      </th>
+      <th><img id=weatherIcon src="" alt=""/><a href=""></a>
+      </th>
+
+    </thead>
+    <tr>
+      <td>Details:</td>
+      <td id='desc'></td>
+    </tr>
+    <tr>
+      <td>Sunrise:</td>
+      <td id='sunrise'></td>
+    </tr>
+    <tr>
+      <td>Sunset:</td>
+      <td id='sunset'></td>
+    </tr>
+    <tr>
+      <td>Wind Speed:</td>
+      <td id='wind'></td>
+    </tr>
+    <tr>
+      <td>Temperature</td>
+      <td id='temp'></td>
+    </tr>
+  </table>
+  <div>
+      <img class="backdrop" id="picture" src="" alt="Pic of Your City" width="400">
+  </div>
+</form>
+<div class="well-lg">
+  <h1 class="panel-primary">NASA's Pic of the Day </h1>
+  <img class="backdrop" id="potdId" src="" alt="NASA's Pic of the Day" width="400">
+  <div id="images"></div>
+
+</div>
+</div>
+
+    <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="jquery.lighter.js"></script>
+    <script>
+    //Create apage View Model
+      var weatherVm ={
+        cityName:'',
+        icon:'',
+        description:'',
+        sunrise:'',
+        sunset:'',
+        windSpeed:'',
+        windTemp:'',
+        citySatImgUrl:'',
+        cloudInfo:{},
+        location:{},
+        mainInfo:{}
+
+      };
+      //Holder for the weatherAPI if here you can refresh weather by calling the.getWeather() function
+      var weather;
+
+    //Wire up Form event handlers for buttons here
+    var btnSearch = document.getElementById('search') ;
+    var btnRefresh = document.getElementById('refresh') ;
+    btnSearch.addEventListener('click', function(evt){
+      evt.preventDefault();
+      //get Name of city to search
+      var searchField = document.getElementById('searchCity').value ;
+      document.getElementById('searchCity').value= '';
+      //use the weatherApi here.
+      weather = new weatherApi(searchField,weatherCallBack);
+
+      //set refresh to be one hour
+      setInterval(function(){
+        //use the weatherApi here to refresh data.
+        weather.getWeather();
+           }, 3600000);
+
+      //Get weather data
+      weather.getWeather();
+    });
+
+    btnRefresh.addEventListener('click', function(evt){
+      evt.preventDefault();
+      //use the weatherApi here to refresh data.
+      weather.getWeather();
+    });
+
+  //helper fuctions go here move out into a lib
+
+function timeConverter(UNIX_timestamp){
+var a = new Date(UNIX_timestamp * 1000);
+var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var year = a.getFullYear();
+var month = months[a.getMonth()];
+var date = a.getDate();
+var hour = a.getHours();
+var min = a.getMinutes();
+var sec = a.getSeconds();
+var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+return time;
+}
+//pass in true or false for fahrenheit kelvin should be the value you want to convert
+function kelvinTempConverter(kelvin, fahrenheit){
+var temp = kelvin - 273.15;
+if(fahrenheit == true)
+{
+  temp = temp * 1.8 + 32;
+}
+return Math.round(temp);
+}
+   var weatherApi =  function(city,callback)
+   {
+       this.weatherData = {};
+       var request = new XMLHttpRequest();
+       var weatherUrl = 'http://api.openweathermap.org/data/2.5/weather?API=&APPID=d43debb0b9a3919fef3f0f689e82583e&q='+city;
+       this.loadWeather = function(){
+         // perform a GET request
+         request.open('GET', weatherUrl);
+        // handle the response
+         request.addEventListener('load', function (evt) {
+        // turn off default dehavior
+        evt.preventDefault();
+        // parse the data from JSON and Store data in object and pass object to callback
+        callback(JSON.parse(request.responseText));
+        });
+          // kick off the request
+          request.send();
+       };
+        //this.loadWeather();
+    return {
+        getWeather: this.loadWeather
+    };
+}
+function cityImgCallBack(resultData)
+{
+ //store the city Image obj data in a local view model data.
+ //TODO this should be hidden until now then use a slideToggle animation
+ //like the weather form does after you enter a city and click search
+  weatherVm.citySatImgUrl = resultData.url;
+  $('#picture').attr('src',weatherVm.citySatImgUrl);
+
+}
+function weatherCallBack(resultData)
+{
+ //store the weather obj data in a local view model data.
+ weatherVm.cityName = resultData.name;
+ weatherVm.location = resultData.coord;
+ weatherVm.icon = resultData.weather[0].icon;
+ weatherVm.description =resultData.weather[0].description;
+ weatherVm.sunrise = resultData.sys.sunrise;
+ weatherVm.sunset = resultData.sys.sunset;
+ weatherVm.windSpeed = resultData.wind.speed;
+  weatherVm.windTemp = resultData.wind.deg;
+ weatherVm.mainInfo = resultData.main;
+ weatherVm.cloudInfo = resultData.clouds;
+ potd.getCityImg(weatherVm.location.lat,weatherVm.location.lon,cityImgCallBack);
+ potd.getRandomImages(weatherVm.cityName+' city',potdRandCallBack);
+ updateWeather();
+}
+
+function updateWeather()
+{
+
+  //The code for updating the DOM goes here
+  //Get all the elements to be updated
+  var iconEl = document.getElementById('weatherIcon') ;
+  var cityNameEl = document.getElementById('cityName') ;
+  var descEl = document.getElementById('desc');
+  var sunriseEl = document.getElementById('sunrise');
+  var sunsetEl = document.getElementById('sunset');
+  var windEl = document.getElementById('wind');
+  var tempEl = document.getElementById('temp');
+
+  //update the Elements with the view model
+  iconEl.src = 'http://openweathermap.org/img/w/' + weatherVm.icon + '.png';
+  cityNameEl.innerHTML = weatherVm.cityName;
+  descEl.innerHTML = weatherVm.description;
+  sunriseEl.innerHTML = timeConverter(weatherVm.sunrise);
+  sunsetEl.innerHTML = timeConverter(weatherVm.sunset);
+  windEl.innerHTML = weatherVm.windSpeed;
+  tempEl.innerHTML = kelvinTempConverter(weatherVm.mainInfo.temp,true);
+   $('#weatherForm').slideToggle('slow');
+
+
+}
+//Pic of the day engine v1 goes here
+var potdApi =  function(callback)
+{
+  //this is a holder for requested data
+  this.potdData = {};
+  this.loadTodayPic = function(lat,long,callback){
+  var potdUrl = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
+  $.getJSON(potdUrl)
+    .done(function(result) {
+      callback(result);
+    })
+    .fail(function(result){
+      console.error(result.responseJSON.error.message);
+
+    });}
+
+    this.getCityImg = function(lat,long,callback){
+    var url = 'https://api.nasa.gov/planetary/earth/imagery?lat='+lat+'&lon='+long+'&date=2015-01-02&api_key=DEMO_KEY';
+    $.getJSON(url)
+      .done(function(result) {
+        callback(result);
+      })
+      .fail(function(result){
+        console.error(result.responseJSON.error.message);
+      });}
+
+      this.getRandomImages = function(tag,callback){
+      var url = "http://api.flickr.com/services/feeds/photos_public.gne?jsoncallback=?";
+      $.getJSON( url, {
+        tags: tag,
+        format: "json"
+      })
+        .done(function(result) {
+          callback(result);
+        })
+        .fail(function(result){
+          console.error(result);
+
+        });
+      }
+
+  return {
+   getTodayPic: this.loadTodayPic,
+   getCityImg: this.getCityImg,
+   getRandomImages: this.getRandomImages
+  };
+}
+function potdCallBack(resultData)
+{
+ //store the weather obj data in a local view model data.
+ document.getElementById('potdId').src = resultData.url ;
+}
+function potdRandCallBack(results)
+{
+ //load images from url
+ var images = '';
+       for (var i=0;i<results.items.length;i++) {
+      images +=   '<a href="' + results.items[i].media.m + '" data-lighter>';
+      images +=   '<img src="' + results.items[i].media.m + '" />';
+      images +=   '</a>';
+         //images += '<img src="' + results.items[i].media.m + '" />';
+       }
+       $('#images').html(images);
+}
+var potd = new potdApi(potdCallBack);
+potd.getTodayPic();
+
+    </script>
+  </body>
+</html>

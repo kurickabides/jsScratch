@@ -1,0 +1,10 @@
+strong {
+  color: red;
+  font-style: italic;
+}
+#weatherForm {
+       display:none;
+       width:300px;
+       background-color:lightgray;
+       padding:10px;
+     }
